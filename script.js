@@ -17,3 +17,11 @@ function divide(a,b) {
 
     return a / b;
 }
+
+function operate(first, item, second) {
+    return item(parseInt(first), parseInt(second));
+}
+
+let first;
+let item;
+let second;
