@@ -19,39 +19,60 @@ function divide(a,b) {
 }
 
 function operate(first, item, second) {
-    return item(parseInt(first), parseInt(second));
+    return item(parseFloat(first), parseFloat(second));
+}
+
+function negative(value) {
+    if (onFirst && !first) {
+        addValue(value);
+        addToScreen(value);
+    }
+    else if (!onFirst && !second) {
+        addValue(value);
+        addToScreen(value);
+    }
 }
 
 function clickReceiver(value) {
+    if (value==='-') {
+        negative(value);
+    }
     if (!isNaN(value)) {
         addValue(value);
+        addToScreen(value);
     }
-    else if (value==='.' && !usedDot) {
+    else if (value==='.') {
+        if (onFirst) {
+            if (first && first.includes('.')) return;
+        }
+        else if (second && second.includes('.')) return;
         addValue(value);
-        usedDot=true;
+        addToScreen(value);
     }
     else if (value==='DEL') {
         del();
+        addToScreen(value);
     }
     else if (value==='AC') {
-        first=undefined;
-        second=undefined;
-        item=undefined;
-        onFirst=true;
-        usedDot=false;
-        choseItem=false;
+        ac();
     }
-    else if (!choseItem && value!=='.' && value!=='=') {
+    else if (!item && value!=='.' && value!=='=' && !isNaN(first)) {
+        addToScreen(value);
         item = value;
         onFirst = false;
-        usedDot=false;
-        choseItem=true;
     }
     else if ((second) && value==='='){
-        result = sendItem();
-        console.log(result);
+        doneCalc = true;
+        sendItem();
     }
-    console.log(first, item, second);
+}
+
+function ac() {
+    first=undefined;
+    second=undefined;
+    item=undefined;
+    onFirst=true;
+    addToScreen('AC');
 }
 
 function addValue(value) {
@@ -65,19 +86,13 @@ function addValue(value) {
 
 function del() {
     if (second) {
-        if (second.indexOf('.')===second.length-1){
-            usedDot=false;
-        }
         second = second.substr(0, second.length-1);
     }
     else if (item) {
         item=undefined;
-        choseItem=false;
+        onFirst=true;
     }
     else if(first) {
-        if (first.indexOf('.')===first.length-1){
-            usedDot=false;
-        }
         first = first.substr(0, first.length-1);
     }
 }
@@ -97,14 +112,42 @@ function sendItem() {
             result = operate(first, divide, second);
         }
 
-    return result;
+    finish(result);
 }
 
+function addToScreen(value) {
+
+    if (value==='DEL') {
+        let parent = document.getElementById('text-cnt');
+        if (parent.firstChild) parent.removeChild(parent.lastChild);
+    }
+    else if (value==='AC') {
+        let parent = document.getElementById('text-cnt');
+        while (parent.firstChild) {
+            parent.removeChild(parent.lastChild);
+        }
+    }
+    else {   
+        let screenVal = document.createElement('p');
+        screenVal.classList.add('screenText');
+        let node = document.createTextNode(value);
+        screenVal.appendChild(node);
+
+        let papa = document.getElementById('text-cnt');
+        papa.appendChild(screenVal);
+    }
+}
+
+function finish(value) {
+    ac();
+    first=value;
+    addToScreen(value);
+}
 
 let buttons = document.querySelectorAll('button');
 
 buttons.forEach((btn) => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', () => {
         clickReceiver(btn.textContent);
     });
 });
@@ -114,5 +157,3 @@ let item;
 let second;
 
 let onFirst = true;
-let usedDot = false;
-choseItem = false;
