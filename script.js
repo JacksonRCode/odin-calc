@@ -94,7 +94,6 @@ function del() {
     }
     else if(first) {
         first = first.toString()
-        console.log(typeof first, first);
         first = first.substr(0, first.length-1);
     }
 }
@@ -120,7 +119,6 @@ function sendItem() {
 function addToScreen(value) {
 
     if (value==='DEL') {
-        console.log('here');
         let parent = document.getElementById('text-cnt');
         if (parent.firstChild) parent.removeChild(parent.lastChild);
     }
